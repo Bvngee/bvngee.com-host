@@ -25,11 +25,7 @@ types {
 
     font/woff                                        woff;
     font/woff2                                       woff2;
-<<<<<<< HEAD
-    font/collection                                  collection;
-=======
     font/collection                                  ttc;
->>>>>>> 8478b37 (mime.types for font types so that gzip can compress them (when it's used))
     font/otf                                         otf;
     font/sfnt                                        sfnt;
     font/ttf                                         ttf;
