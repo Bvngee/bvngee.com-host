@@ -11,6 +11,7 @@ RUN apk add --no-cache nodejs npm git bash openssl curl
 
 # Copy configurations files into container
 COPY nginx.conf /etc/nginx/nginx.conf
+COPY mime.types /etc/nginx/mime.types
 COPY nginx-simple-http.conf /etc/nginx/nginx-simple-http.conf
 COPY hooks.json /root/webhook/hooks.json
 
