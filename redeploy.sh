@@ -14,8 +14,6 @@ fi
 npm install
 # Make the webroot and clear it
 mkdir -p /usr/share/nginx/html && rm -rf /usr/share/nginx/html/*
-# Fix potential vulnerabilities
-npm audit fix
 # Build
 npm run build
 # Move all contents into webroot folder
