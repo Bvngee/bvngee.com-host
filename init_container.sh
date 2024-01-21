@@ -19,7 +19,7 @@ if [ ! -f "/root/.acme.sh/acme.sh" ]; then
     nginx -c /etc/nginx/nginx-simple-http.conf
 
     # Request SSL certs (uses nginx webroot mode)
-    ./acme.sh --issue \
+    ./acme.sh --set-default-ca --server letsencrypt --issue \
         -d bvngeecord.com \
         -d www.bvngeecord.com \
         -d webhook.bvngeecord.com \
