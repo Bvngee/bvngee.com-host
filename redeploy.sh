@@ -12,9 +12,11 @@ fi
 
 # Install deps and packages
 npm install
-# Make the webroot and clear it
-mkdir -p /usr/share/nginx/html && rm -rf /usr/share/nginx/html/*
+# Make the webroot folder if it dne
+mkdir -p /usr/share/nginx/html
 # Build
 npm run build
-# Move all contents into webroot folder
+# Clear old webroot
+rm -rf /usr/share/nginx/html/*
+# Move new contents into webroot folder
 cp -r dist/* /usr/share/nginx/html
