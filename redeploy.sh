@@ -8,7 +8,10 @@ if ! [ -d "/root/bvngeecord.com/.git" ]; then
     cd bvngeecord.com
 else
     cd bvngeecord.com
-    git pull
+    git pull || (cd .. \
+        && rm -r bvngeecord.com \
+        && git clone https://github.com/BvngeeCord/bvngeecord.com/ \
+        && cd bvngeecord.com)
 fi
 
 # Install deps and packages
