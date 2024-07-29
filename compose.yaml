@@ -1,0 +1,43 @@
+name: Docker Compose setup for all things bvngee.com related
+
+services:
+  bvngee.com-proxy:
+    image: bvngee.com-proxy:latest
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - bvngee.com-static:/usr/share/nginx/html
+      - acme.sh-/certs:/usr/share/nginx/certs
+  registry:
+    restart: always
+    image: registry:2
+    ports:
+      - 5000:5000
+    environment:
+      # REGISTRY_HTTP_TLS_CERTIFICATE: /certs/domain.crt
+      # REGISTRY_HTTP_TLS_KEY: /certs/domain.key
+      REGISTRY_AUTH: htpasswd
+      REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd
+      REGISTRY_AUTH_HTPASSWD_REALM: Bvngee's private container registry
+    volumes:
+      # - /path/data:/var/lib/registry
+      # - /path/certs:/certs
+      - ./registry/auth:/auth
+  webhook:
+    image: bvngee-webhook:latest
+    ports: "3000:3000"
+    volumes:
+      - bvngee.com-static:/bvngee.com-static
+  acme-sh:
+    image: bvngee-acme-sh:latest
+    volumes:
+      - acme.sh-certs:/acme.sh-certs
+      - bvngee.com-static:/bvngee.com-static
+  github-readme-stats:
+    image: github-readme-stats:latest
+    ports: "9000:9000"
+    
+volumes:
+  bvngee.com-static:
+  acme.sh:

@@ -1,0 +1,2 @@
+# <minute> <hour> <day_of_month> <month_of_year> <day_of_week> <user> <cmd>
+0 0 1 * * root /root/acme-renew.sh > /proc/1/fd/1 2>/proc/1/fd/2

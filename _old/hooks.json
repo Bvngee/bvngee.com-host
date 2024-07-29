@@ -11,7 +11,7 @@
           "match":
           {
             "type": "payload-hmac-sha256",
-            "secret": "minecraft",
+            "secret": "{{ getenv 'WEBHOOK_SECRET' }}",
             "parameter":
             {
               "source": "header",
