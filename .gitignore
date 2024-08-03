@@ -1,0 +1,9 @@
+# self explanatory
+secrets/
+
+# temp folder I use for debugging
+out/
+
+# nix shell stuff
+.direnv/
+.envrc

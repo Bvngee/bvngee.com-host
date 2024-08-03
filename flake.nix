@@ -23,7 +23,6 @@
       supportedSystems = [ "x86_64-linux" "x86_64-darwin" "aarch64-linux" "aarch64-darwin" ];
       forAllSystems = fn:
         nixpkgs.lib.genAttrs supportedSystems (system: fn nixpkgs.legacyPackages.${system});
-
     in
     {
       packages = forAllSystems (pkgs:
@@ -38,12 +37,21 @@
               inherit nix2container github-readme-stats;
             };
             webhook = pkgs.callPackage ./containers/webhook/default.nix { inherit nix2container; };
-            bvngee-com-proxy = pkgs.callPackage ./containers/bvngee.com-proxy/default.nix { inherit nix2container; };
+            nginx-proxy = pkgs.callPackage ./containers/nginx-proxy/default.nix { inherit nix2container; };
             acme-sh = pkgs.callPackage ./containers/acme.sh/default.nix {
               inherit nix2container;
               inherit (inputs) acme-sh;
             };
           };
         });
+      devShells = forAllSystems (pkgs: {
+        default = pkgs.mkShell {
+          name = "bvngee.com-host";
+          packages = with inputs.nix2container.packages.${pkgs.system}; [
+            nix2container-bin # go program that generates json files in the defined format
+            skopeo-nix2container # patched Skopeo that can work withs those json files
+          ];
+        };
+      });
     };
 }

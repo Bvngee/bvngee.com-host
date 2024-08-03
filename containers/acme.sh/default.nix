@@ -1,5 +1,6 @@
 {
   nix2container,
+  dockerTools,
   buildEnv,
   runCommand,
 
@@ -7,8 +8,7 @@
   openssl,
   curl,
   cron,
-  bash,
-  coreutils,
+  busybox,
   ...
 }: 
 let
@@ -16,35 +16,45 @@ let
     mkdir -p $out/acme.sh
     # Only include necessary stuff from acme.sh git repo
     cp -r ${acme-sh}/{deploy,dnsapi,notify,acme.sh} $out/acme.sh
+    chmod -R 755 $out/acme.sh 
+    patchShebangs $out/acme.sh 
   '';
   deps = buildEnv {
     name = "image-root";
-    paths = [ cron curl openssl bash coreutils ];
+    paths = [ cron curl openssl busybox ];
     pathsToLink = [ "/bin" ];
   };
   acmeRenewScript = runCommand "acme-renew.sh" {} ''
     mkdir -p $out/root
-    cat ${./acme-renew.sh} > $out/root/acme-renew.sh
+    ln -s ${./acme-renew.sh} $out/root/acme-renew.sh
   '';
   crontab = runCommand "crontab" {} ''
     mkdir -p $out/etc/crontabs
-    cat ${./crontab} > $out/etc/crontabs/root
+    ln -s ${./crontab} $out/etc/crontabs/root
+  '';
+  cronVar = runCommand "cron-var" {} ''
+    mkdir -p $out/var/run/ # Needed for cron to create it's pid file
   '';
 in 
 nix2container.buildImage {
-  name = "acme.sh";
+  name = "bvngee/acme.sh";
   tag = "latest";
   maxLayers = 125;
   copyToRoot = [
     acme-sh-pkg
     deps
+    dockerTools.caCertificates
     acmeRenewScript
     crontab
+    cronVar
   ];
   config = {
     Cmd = [
-      "/bin/cron"
-      "-f"
+      ../../util/run_with_secrets.sh
+     "CF_Token"
+     "CF_Account_ID"
+     "\\"
+      ./start.sh # Requests certs if that hasn't been done yet; otherwise starts cron
     ];
     Volumes."/bvngee.com-static" = { };
     Volumes."/acme.sh-certs" = { };

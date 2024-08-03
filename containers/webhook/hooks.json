@@ -1,7 +1,7 @@
 [
   {
     "id": "github-push-webhook",
-    "execute-command": "/usr/local/bin/redeploy.sh",
+    "execute-command": "/root/rebuild.sh",
     "command-working-directory": "/root",
     "trigger-rule":
     {
@@ -11,7 +11,7 @@
           "match":
           {
             "type": "payload-hmac-sha256",
-            "secret": "{{ getenv 'WEBHOOK_SECRET' }}",
+            "secret": "{{ getenv "WEBHOOK_SECRET" | js }}",
             "parameter":
             {
               "source": "header",

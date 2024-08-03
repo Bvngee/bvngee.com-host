@@ -1,43 +1,100 @@
-name: Docker Compose setup for all things bvngee.com related
+# Docker Compose setup for all things bvngee.com related
+name: bvngeedotcom-host
 
 services:
-  bvngee.com-proxy:
-    image: bvngee.com-proxy:latest
+  # First point of contact for all bvngee.com requests; proxies them to different servers/apps
+  nginx-proxy:
+    image: registry.bvngee.com/bvngee/nginx-proxy:latest
     ports:
-      - "443:443"
-      - "80:80"
+      - 443:443
+      - 80:80
     volumes:
-      - bvngee.com-static:/usr/share/nginx/html
-      - acme.sh-/certs:/usr/share/nginx/certs
+      - website-static:/usr/share/nginx/html
+      - acme.sh-certs:/usr/share/nginx/certs
+        # Editing the main nginx configuration via bind mount is much easier,
+        # and in the case that it breaks access to the registry I can fix/revert
+        # it without sending over full image tarballs again.
+      - type: bind
+        source: ./nginx-proxy-conf
+        target: /etc/nginx
+    secrets:
+      - source: nginx_htpasswd
+        target: nginx.htpasswd
+        # Nginx (when non-root) requires correct permissions on this file, but 
+        # `docker` doesn't support this part of the compose spec so you must
+        # `chmod 644 ./secrets/nginx.htpasswd` on host before sending over the secrets
+        #mode: 444
+
+  # Private container registry used solely for the purpopse of sending updated images
+  # used in this compose file over the network (skips unchanged image layers!)
   registry:
     restart: always
     image: registry:2
     ports:
       - 5000:5000
+    volumes:
+      - registry:/var/lib/registry
     environment:
-      # REGISTRY_HTTP_TLS_CERTIFICATE: /certs/domain.crt
-      # REGISTRY_HTTP_TLS_KEY: /certs/domain.key
-      REGISTRY_AUTH: htpasswd
-      REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd
-      REGISTRY_AUTH_HTPASSWD_REALM: Bvngee's private container registry
-    volumes:
-      # - /path/data:/var/lib/registry
-      # - /path/certs:/certs
-      - ./registry/auth:/auth
+      # https://github.com/containers/skopeo/issues/463#issuecomment-355306799
+      REGISTRY_STORAGE_DELETE_ENABLED: true
+
+  # Listens for GitHub webhooks (eg. new commit) and rebuilds my website when it recieves them
   webhook:
-    image: bvngee-webhook:latest
-    ports: "3000:3000"
+    image: registry.bvngee.com/bvngee/webhook:latest
+    ports: 
+      - 3000:3000
     volumes:
-      - bvngee.com-static:/bvngee.com-static
-  acme-sh:
-    image: bvngee-acme-sh:latest
+      - website-static:/website-static
+    secrets:
+      - webhook_secret
+    environment:
+      WEBHOOK_SECRET_FILE: /run/secrets/webhook_secret
+
+  # Obtains SSL certificates for all used subdomains using DNS-01 challenges 
+  acme.sh:
+    image: registry.bvngee.com/bvngee/acme.sh:latest
     volumes:
       - acme.sh-certs:/acme.sh-certs
-      - bvngee.com-static:/bvngee.com-static
+      # - website-static:/website-static # (no longer using HTTP-01 challanges!)
+    secrets:
+      - cloudflare_token_dnsapi
+      - cloudflare_account_id
+    environment:
+      CF_Token_FILE: /run/secrets/cloudflare_token_dnsapi
+      CF_Account_ID_FILE: /run/secrets/cloudflare_account_id
+
+  # Enough said
   github-readme-stats:
-    image: github-readme-stats:latest
-    ports: "9000:9000"
+    image: registry.bvngee.com/bvngee/github-readme-stats:latest
+    ports: 
+      - 9000:9000
+    secrets:
+      - github_readme_stats_token
+    environment:
+      PAT_1_FILE: /run/secrets/github_readme_stats_token
     
+
 volumes:
-  bvngee.com-static:
-  acme.sh:
+  website-static: # All the static files that make up my website
+  acme.sh-certs: # Contains SSL certificates for all used subdomains
+  registry: # Data from the private container registry
+
+secrets:
+  # Needed so acme.sh can edit/add DNS records to complete DNS-01 challenges (for SSL certs)
+  cloudflare_token_dnsapi:
+    file: ./secrets/cloudflare_token_dnsapi.txt
+  cloudflare_account_id:
+    file: ./secrets/cloudflare_account_id.txt
+
+  # Needed for github-readme-stats to see private repositories and include them in statistics
+  github_readme_stats_token:
+    file: ./secrets/github_readme_stats_token.txt
+
+  # Needed for webhook server to validate GitHub webhooks
+  webhook_secret:
+    file: ./secrets/webhook_secret.txt
+
+  # Simple .htpasswd used to secure the registry (and maybe more later)
+  nginx_htpasswd: 
+    file: ./secrets/nginx.htpasswd
+

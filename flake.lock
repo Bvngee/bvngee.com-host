@@ -1,5 +1,21 @@
 {
   "nodes": {
+    "acme-sh": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1720937160,
+        "narHash": "sha256-QYOpfkBihPm31ktsTb1FDL6wJBpThgetNG0G+ahNlKk=",
+        "owner": "acmesh-official",
+        "repo": "acme.sh",
+        "rev": "0f61e9c15ec6485f29ee5da73d1759b962a9bc9d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "acmesh-official",
+        "repo": "acme.sh",
+        "type": "github"
+      }
+    },
     "flake-utils": {
       "inputs": {
         "systems": "systems"
@@ -57,6 +73,7 @@
     },
     "root": {
       "inputs": {
+        "acme-sh": "acme-sh",
         "nix2container": "nix2container",
         "nixpkgs": "nixpkgs"
       }
