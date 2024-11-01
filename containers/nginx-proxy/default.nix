@@ -14,6 +14,7 @@ let
     # afaik these paths must exist even if nginx is configured not to use them
     mkdir -p $out/var/log/nginx
     mkdir -p $out/var/cache/nginx
+    mkdir -p $out/var/run # pid file
     # this also prevents an error
     mkdir -p $out/tmp
   '';
