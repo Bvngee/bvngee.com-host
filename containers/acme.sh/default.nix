@@ -34,10 +34,11 @@ let
   '';
   cronVar = runCommand "cron-var" {} ''
     mkdir -p $out/var/run/ # Needed for cron to create it's pid file
+    mkdir -p $out/var/cron/
   '';
   runWithSecrets = runCommand "run-with-secrets" {} ''
     mkdir -p $out/bin
-    ln -s ${../../util/run_with_secrets.sh} $out/bin # used by cron
+    ln -s ${../../util/run_with_secrets.sh} $out/bin/run_with_secrets.sh # used by cron
   '';
 in 
 nix2container.buildImage {
@@ -48,6 +49,7 @@ nix2container.buildImage {
     acme-sh-pkg
     deps
     dockerTools.caCertificates
+    dockerTools.fakeNss # Allows cron to append to /proc/1/fd/1
     acmeRenewScript
     crontab
     cronVar
