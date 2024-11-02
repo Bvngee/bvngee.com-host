@@ -35,6 +35,10 @@ let
   cronVar = runCommand "cron-var" {} ''
     mkdir -p $out/var/run/ # Needed for cron to create it's pid file
   '';
+  runWithSecrets = runCommand "run-with-secrets" {} ''
+    mkdir -p $out/bin
+    ln -s ${../../util/run_with_secrets.sh} $out/bin # used by cron
+  '';
 in 
 nix2container.buildImage {
   name = "bvngee/acme.sh";
@@ -47,13 +51,10 @@ nix2container.buildImage {
     acmeRenewScript
     crontab
     cronVar
+    runWithSecrets
   ];
   config = {
     Cmd = [
-      ../../util/run_with_secrets.sh
-     "CF_Token"
-     "CF_Account_ID"
-     "\\"
       ./start.sh # Requests certs if that hasn't been done yet; otherwise starts cron
     ];
     Volumes."/bvngee.com-static" = { };
