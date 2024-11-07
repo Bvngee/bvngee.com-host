@@ -24,6 +24,9 @@ services:
         # `docker` doesn't support this part of the compose spec so you must
         # `chmod 644 ./secrets/nginx.htpasswd` on host before sending over the secrets
         #mode: 444
+    networks:
+      - default
+      - external # so that nginx can reverse-proxy to other containers on this network
 
   # Private container registry used solely for the purpopse of sending updated images
   # used in this compose file over the network (skips unchanged image layers!)
@@ -96,3 +99,8 @@ secrets:
   nginx_htpasswd: 
     file: ./secrets/nginx.htpasswd
 
+networks:
+  # In the case that I wan't to put other docker setups underneath nginx-proxy,
+  # they can attach to this
+  external: 
+    driver: bridge
