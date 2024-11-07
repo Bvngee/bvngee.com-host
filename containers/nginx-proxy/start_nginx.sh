@@ -11,17 +11,17 @@ if [ ! -e /usr/share/nginx/certs/key.pem ] || [ ! -e /usr/share/nginx/certs/full
 fi
 
 reload_on_certs_or_config_change() {
-    while inotifywait -e close_write -m /usr/share/nginx/certs /etc/nginx; do
-        echo "INFO: File change detected - reloading Nginx!"
-        nginx -c /etc/nginx/nginx.conf -s reload \
-            && echo "Successfully reloaded Nginx!" \
-            || echo "Failed to reload Nginx!"
-    done
+    inotifywait -q -e close_write -m /usr/share/nginx/certs /etc/nginx \
+        | while read -r file _event; do \
+            echo "INFO: Detected change to ${file}, reloading Nginx..."
+            nginx -c /etc/nginx/nginx.conf -s reload \
+                && echo "INFO: Successfully reloaded Nginx!" \
+                || echo "WARN: Failed to reload Nginx!"
+        done
 }
 
 echo "INFO: Starting nginx!"
 
-# TODO: the redirect (into docker logs) is not working (not seeing "File change detected")
-reload_on_certs_or_config_change > /proc/1/fd/1 2>/proc/1/fd/2 &
+reload_on_certs_or_config_change &
 
 nginx -c /etc/nginx/nginx.conf -g 'daemon off;'
