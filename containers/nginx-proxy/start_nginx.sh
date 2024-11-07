@@ -21,6 +21,7 @@ reload_on_certs_or_config_change() {
 
 echo "INFO: Starting nginx!"
 
-reload_on_certs_or_config_change &
+# TODO: the redirect (into docker logs) is not working (not seeing "File change detected")
+reload_on_certs_or_config_change > /proc/1/fd/1 2>/proc/1/fd/2 &
 
 nginx -c /etc/nginx/nginx.conf -g 'daemon off;'
