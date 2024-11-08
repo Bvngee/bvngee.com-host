@@ -4,6 +4,7 @@ name: bvngeedotcom-host
 services:
   # First point of contact for all bvngee.com requests; proxies them to different servers/apps
   nginx-proxy:
+    restart: unless-stopped
     image: registry.bvngee.com/bvngee/nginx-proxy:latest
     ports:
       - 443:443
@@ -80,6 +81,7 @@ services:
   # Obtains SSL certificates for all used subdomains using DNS-01 challenges 
   acme.sh:
     image: registry.bvngee.com/bvngee/acme.sh:latest
+    restart: unless-stopped
     volumes:
       - acme.sh-certs:/acme.sh-certs
       # - website-static:/website-static # (no longer using HTTP-01 challanges!)
@@ -91,6 +93,7 @@ services:
   # Enough said
   github-readme-stats:
     image: registry.bvngee.com/bvngee/github-readme-stats:latest
+    restart: unless-stopped
     ports: 
       - 9000:9000
     secrets:
