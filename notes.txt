@@ -17,6 +17,9 @@ note that nginx (when non-root) requires correct file permissions to be set on t
 nginx.htpasswd secret, so you must `chmod 644 ./secrets/nginx.htpasswd` on host before
 sending over the secrets
 
+To add a new username/password combo to the htpasswd file:
+`nix shell nixpkgs#apacheHttpd -c htpasswd -B secrets/nginx.htpasswd username`
+
 
 docker compose exec -it registry registry garbage-collect /etc/docker/registry/config.yml
 
