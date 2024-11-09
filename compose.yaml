@@ -40,7 +40,7 @@ services:
       - registry:/var/lib/registry
     environment:
       # https://joxit.dev/docker-registry-ui/#recommended-docker-registry-usage
-      REGISTRY_HTTP_HEADERS_Access-Control-Allow-Origin: "[http://registry.example.com]"
+      REGISTRY_HTTP_HEADERS_Access-Control-Allow-Origin: "[http://registry.bvngee.com]"
       REGISTRY_HTTP_HEADERS_Access-Control-Allow-Methods: "[HEAD,GET,OPTIONS,DELETE]"
       REGISTRY_HTTP_HEADERS_Access-Control-Allow-Credentials: "[true]"
       REGISTRY_HTTP_HEADERS_Access-Control-Allow-Headers: "[Authorization,Accept,Cache-Control]"
