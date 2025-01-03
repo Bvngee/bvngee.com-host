@@ -1,9 +1,9 @@
 {
   lib,
+  callPackage,
   nix2container,
   dockerTools,
   buildEnv,
-  github-readme-stats,
 
   # note: this could use nodejs slim but then but then it wouldn't
   # be shared as a layer with my other containers that need full nodejs
@@ -33,7 +33,7 @@
       "PAT_1"
       "\\"
       (lib.getExe nodejs)
-      "${github-readme-stats}/lib/node_modules/github-readme-stats/express.js"
+      "${callPackage ./github-readme-stats {}}/lib/node_modules/github-readme-stats/express.js"
     ];
     ExportedPorts."${toString port}/tcp" = {};
   };
