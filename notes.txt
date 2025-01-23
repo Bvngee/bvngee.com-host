@@ -21,7 +21,7 @@ To add a new username/password combo to the htpasswd file:
 `nix shell nixpkgs#apacheHttpd -c htpasswd -B secrets/nginx.htpasswd username`
 
 
-docker compose exec -it registry registry garbage-collect /etc/docker/registry/config.yml
+docker compose exec -it registry /bin/registry garbage-collect /etc/docker/registry/config.yml
 
 
 If you see a "sh: program: command not found" in any app/script, it very likely means that
