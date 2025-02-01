@@ -89,7 +89,9 @@ services:
     secrets:
       - cloudflare_token_dnsapi
       - cloudflare_account_id
-    # environment: # acme.sh's secret environment variables are set in crontab instead
+    environment:
+      CF_Token_FILE: /run/secrets/cloudflare_token_dnsapi
+      CF_Account_ID_FILE: /run/secrets/cloudflare_account_id
 
   # Enough said
   github-readme-stats:

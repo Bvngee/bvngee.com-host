@@ -5,4 +5,4 @@ if [ ! -e /acme.sh-certs/key.pem ] || [ ! -e /acme.sh-certs/fullchain.pem ]; the
     /root/acme-renew.sh
 fi
 
-/bin/cron -n # runs in foreground
+/bin/supercronic "$1" # runs in foreground

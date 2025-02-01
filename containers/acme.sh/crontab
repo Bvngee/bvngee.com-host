@@ -1,6 +1,7 @@
 # <minute> <hour> <day_of_month> <month_of_year> <day_of_week> <user> <cmd>  for regular crontab
 # <minute> <hour> <day_of_month> <month_of_year> <day_of_week> <cmd>         for root crontab
+# https://crontab.guru/
+# supercronic: https://github.com/aptible/supercronic
 
-CF_Token_FILE=/run/secrets/cloudflare_token_dnsapi
-CF_Account_ID_FILE=/run/secrets/cloudflare_account_id
-0 0 1 * * /bin/run_with_secrets.sh CF_Token CF_Account_ID \\ /root/acme-renew.sh > /proc/1/fd/1 2>&1
+# (first of every month)
+0 0 1 * * /root/acme-renew.sh

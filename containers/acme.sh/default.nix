@@ -7,7 +7,7 @@
   acme-sh, # from flake input (or use fetchFromGitHub)
   openssl,
   curl,
-  cron,
+  supercronic,
   busybox,
   ...
 }: 
@@ -21,24 +21,12 @@ let
   '';
   deps = buildEnv {
     name = "image-root";
-    paths = [ cron curl openssl busybox ];
+    paths = [ supercronic curl openssl busybox ];
     pathsToLink = [ "/bin" ];
   };
   acmeRenewScript = runCommand "acme-renew.sh" {} ''
     mkdir -p $out/root
     ln -s ${./acme-renew.sh} $out/root/acme-renew.sh
-  '';
-  crontab = runCommand "crontab" {} ''
-    mkdir -p $out/etc/crontabs
-    ln -s ${./crontab} $out/etc/crontabs/root
-  '';
-  cronVar = runCommand "cron-var" {} ''
-    mkdir -p $out/var/run/ # Needed for cron to create it's pid file
-    mkdir -p $out/var/cron/
-  '';
-  runWithSecrets = runCommand "run-with-secrets" {} ''
-    mkdir -p $out/bin
-    ln -s ${../../util/run_with_secrets.sh} $out/bin/run_with_secrets.sh # used by cron
   '';
 in 
 nix2container.buildImage {
@@ -46,18 +34,20 @@ nix2container.buildImage {
   tag = "latest";
   maxLayers = 125;
   copyToRoot = [
-    acme-sh-pkg
     deps
-    dockerTools.caCertificates
-    dockerTools.fakeNss # Allows cron to append to /proc/1/fd/1
+    acme-sh-pkg
     acmeRenewScript
-    crontab
-    cronVar
-    runWithSecrets
+    dockerTools.caCertificates
+    dockerTools.fakeNss # Allows cron to append to /proc/1/fd/1 # do I still need this?
   ];
   config = {
     Cmd = [
-      ./start.sh # Requests certs if that hasn't been done yet; otherwise starts cron
+      ../../util/run_with_secrets.sh
+      "CF_Token"
+      "CF_Account_ID"
+      "\\"
+      ./start.sh # Requests certs if that hasn't been done yet, otherwise starts supercronic
+      ./crontab
     ];
     Volumes."/bvngee.com-static" = { };
     Volumes."/acme.sh-certs" = { };
