@@ -1,5 +1,5 @@
 {
-  description = "All things related to bvngeecord.com (mostly containerized stuff)";
+  description = "All things related to bvngee.com (mostly containerized stuff)";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
