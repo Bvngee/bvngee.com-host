@@ -49,7 +49,7 @@ nix2container.buildImage {
       ./start.sh # Requests certs if that hasn't been done yet, otherwise starts supercronic
       ./crontab
     ];
-    Volumes."/bvngee.com-static" = { };
+    Volumes."/website-static" = { };
     Volumes."/acme.sh-certs" = { };
   };
 }

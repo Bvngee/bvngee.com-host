@@ -85,7 +85,7 @@ services:
     restart: always
     volumes:
       - acme.sh-certs:/acme.sh-certs
-      # - website-static:/website-static # (no longer using HTTP-01 challanges!)
+      - website-static:/website-static # (no longer using HTTP-01 challanges!) # jk; need for telemetry.formulaslug.com
     secrets:
       - cloudflare_token_dnsapi
       - cloudflare_account_id
